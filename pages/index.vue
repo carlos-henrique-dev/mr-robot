@@ -1,8 +1,10 @@
-<script lang="ts">
+
+<script>
 import BaseLayout from "~/components/BaseLayout.vue";
 import Loader from "~/components/Loader.vue";
 
 export default {
+  name: "Home",
   components: { BaseLayout, Loader },
   data() {
     return {
@@ -10,32 +12,38 @@ export default {
     };
   },
   computed: {
-    isLoading(): Boolean {
+    isLoading() {
       return this.loadingFiles;
     },
   },
   methods: {
-    startLoading() {},
-    finishLoading() {},
+    startLoading() {
+      this.loadingFiles = true;
+    },
+    stopLoading() {
+      this.loadingFiles = false;
+    },
     goToAnalytics() {
       this.$router.push({ path: "/analytics" });
     },
-    handleFileDrop(e: any) {
+    handleFileDrop(e) {
+      this.startLoading();
       let droppedFiles = e.dataTransfer.files;
-      if (!droppedFiles) return;
-      [...droppedFiles].forEach((f) => {
-        this.$store.commit("files/add", f);
-      });
 
+      if (!droppedFiles) return;
+
+      [...droppedFiles].forEach((file) => this.$store.commit("files/addFile", file));
+      this.stopLoading();
       this.goToAnalytics();
     },
-    handleFileInput(e: any) {
+    handleFileInput(e) {
+      this.startLoading();
       let inputFiles = e.target.files;
 
       if (!inputFiles) return;
-      [...inputFiles].forEach((f) => {
-        this.$store.commit("files/add", f);
-      });
+
+      [...inputFiles].forEach((file) => this.$store.commit("files/addFile", file));
+      this.stopLoading();
       this.goToAnalytics();
     },
   },

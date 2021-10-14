@@ -1,26 +1,30 @@
-<script lang="ts">
-import Vue from "vue";
-import { mapMutations } from "vuex";
+<script>
 import BaseLayout from "~/components/BaseLayout.vue";
+import Cancel from "~/components/Cancel.vue";
+import Empty from "~/components/Empty.vue";
+import FileItem from "~/components/FileItem.vue";
+import Modal from "~/components/Modal.vue";
 import Trash from "~/components/Trash.vue";
 
-Vue.filter("kb", (val: any) => {
-  return Math.floor(val / 1024);
-});
-
 export default {
-  components: { BaseLayout, Trash },
+  data() {
+    return {
+      showModal: false,
+      showConfirmRemoveDialog: false,
+    };
+  },
+  components: { BaseLayout, Trash, Modal, Cancel, Empty, FileItem },
   computed: {
-    files(): any[] {
-      console.log("files", this.$store.state.files.files);
+    files() {
       return this.$store.state.files.files;
     },
   },
   methods: {
-    removeFile(file: any) {
-      this.files = this.files.filter((f: any) => {
-        return f != file;
-      });
+    removeFile(fileName) {
+      console.log("remove this file", fileName);
+    },
+    openModal() {
+      this.showModal = true;
     },
   },
 };
@@ -28,20 +32,18 @@ export default {
 
 <template>
   <base-layout showHeader>
-    <main class="analytics-container">
+    <main class="analytics-container" v-if="files.length > 0">
       <div class="categories">
         <h3 class="title">
           Escolha as categorias de informações que deseja extrair
         </h3>
-        <button class="button">Adicionar categoria</button>
+        <button class="button" @click="openModal">Adicionar categoria</button>
         <div class="items"></div>
       </div>
       <div class="file-list">
         <ul class="list">
           <li v-for="file in files" :key="file.name" class="item">
-            <span>{{ file.name }} ({{ file.size | kb }} kb)</span>
-            <trash />
-            <!-- <button @click="removeFile(file)" title="Remove">X</button> -->
+            <file-item :file="file" @delete="removeFile" />
           </li>
         </ul>
       </div>
@@ -50,6 +52,18 @@ export default {
       }}</span>
       <button :class="['button', 'start']">Iniciar</button>
     </main>
+    <main v-else class="analytics-container">
+      <div class="empty">
+        <empty />
+        <h3 class="title">Nenhum arquivo para analisar</h3>
+        <p>
+          Volte para a página inicial e adicione algum arquivo PDF para iniciar
+          o processo.
+        </p>
+        <nuxt-link to="/" class="button">Ir para a página inicial</nuxt-link>
+      </div>
+    </main>
+    <modal :isOpen="showModal" />
   </base-layout>
 </template>
 
@@ -71,15 +85,16 @@ export default {
       margin-top: 25px;
     }
   }
+
+  .title {
+    color: $white;
+  }
+
   .categories {
     margin-top: 65px;
     width: 100%;
     max-width: 800px;
     height: 400px; // TODO retirar esse valor fixo
-
-    .title {
-      color: $white;
-    }
   }
 
   .file-list {
@@ -96,25 +111,6 @@ export default {
       list-style: none;
       margin: 0;
       padding: 0;
-
-      .item {
-        color: $white;
-        margin-bottom: 10px;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        padding: 3px 5px 3px 10px;
-        cursor: pointer;
-
-        span {
-          margin-right: auto;
-        }
-
-        &:hover {
-          background: $background;
-          border-radius: 5px;
-        }
-      }
     }
   }
 
@@ -124,6 +120,19 @@ export default {
     color: $white;
     margin-top: 10px;
     font-size: 12px;
+  }
+
+  .empty {
+    margin-top: 65px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    p {
+      color: $white;
+      margin: 30px 0;
+    }
   }
 }
 </style>
