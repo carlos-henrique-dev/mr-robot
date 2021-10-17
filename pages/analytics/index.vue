@@ -1,9 +1,12 @@
 <script>
+import { mapMutations } from "vuex";
+
 import BaseLayout from "~/components/BaseLayout.vue";
 import Cancel from "~/components/Cancel.vue";
+import CategoryCard from "~/components/CategoryCard.vue";
+import CategoryModal from "~/components/CategoryModal.vue";
 import Empty from "~/components/Empty.vue";
 import FileItem from "~/components/FileItem.vue";
-import Modal from "~/components/Modal.vue";
 import Trash from "~/components/Trash.vue";
 
 export default {
@@ -11,20 +14,53 @@ export default {
     return {
       showModal: false,
       showConfirmRemoveDialog: false,
+      selectedCategory: null,
     };
   },
-  components: { BaseLayout, Trash, Modal, Cancel, Empty, FileItem },
+  components: {
+    BaseLayout,
+    Trash,
+    Cancel,
+    Empty,
+    FileItem,
+    CategoryModal,
+    CategoryCard,
+  },
   computed: {
     files() {
       return this.$store.state.files.files;
     },
+    categories() {
+      return this.$store.state.categories.categories;
+    },
+    selectedCategories() {
+      return this.$store.state.categories.selectedCategories;
+    },
   },
   methods: {
+    ...mapMutations({
+      deleteCategory: "categories/deleteCategory",
+      selectCategory: "categories/selectCategory",
+      saveCategory: "categories/saveCategory",
+    }),
+    isSelected(id) {
+      return this.$store.state.categories.selectedCategories.some(
+        (category) => category === id
+      );
+    },
+    editCategory(category) {
+      this.selectedCategory = category;
+      this.openModal();
+    },
     removeFile(fileName) {
       console.log("remove this file", fileName);
     },
     openModal() {
       this.showModal = true;
+    },
+    closeModal() {
+      this.selectedCategory = null;
+      this.showModal = false;
     },
   },
 };
@@ -32,13 +68,27 @@ export default {
 
 <template>
   <base-layout showHeader>
-    <main class="analytics-container" v-if="files.length > 0">
+    <main class="analytics-container">
+      <!-- v-if="files.length > 0" -->
       <div class="categories">
         <h3 class="title">
           Escolha as categorias de informações que deseja extrair
         </h3>
         <button class="button" @click="openModal">Adicionar categoria</button>
-        <div class="items"></div>
+        <div class="items">
+          <category-card
+            v-for="category of categories"
+            :key="category.name"
+            :data="category"
+            :isSelected="isSelected(category.id)"
+            @delete="deleteCategory"
+            @select="selectCategory"
+            @edit="editCategory"
+          />
+        </div>
+        <span class="count">{{
+          `Categorias selecionadas: ${selectedCategories.length}`
+        }}</span>
       </div>
       <div class="file-list">
         <ul class="list">
@@ -47,12 +97,10 @@ export default {
           </li>
         </ul>
       </div>
-      <span class="files-count">{{
-        `Arquivos para analisar: ${files.length}`
-      }}</span>
+      <span class="count">{{ `Arquivos para analisar: ${files.length}` }}</span>
       <button :class="['button', 'start']">Iniciar</button>
     </main>
-    <main v-else class="analytics-container">
+    <!-- <main v-else class="analytics-container">
       <div class="empty">
         <empty />
         <h3 class="title">Nenhum arquivo para analisar</h3>
@@ -62,8 +110,13 @@ export default {
         </p>
         <nuxt-link to="/" class="button">Ir para a página inicial</nuxt-link>
       </div>
-    </main>
-    <modal :isOpen="showModal" />
+    </main> -->
+    <category-modal
+      :showModal="showModal"
+      @closeModal="closeModal"
+      :selectedCategory="selectedCategory"
+	  @save="saveCategory"
+    />
   </base-layout>
 </template>
 
@@ -91,10 +144,20 @@ export default {
   }
 
   .categories {
-    margin-top: 65px;
+    margin: 65px 0 30px;
     width: 100%;
     max-width: 800px;
-    height: 400px; // TODO retirar esse valor fixo
+    min-height: 200px;
+
+    .items {
+      display: grid;
+      grid-template-columns: 250px 250px 250px;
+      grid-column-gap: 20px;
+      grid-row-gap: 20px;
+      justify-items: stretch;
+      align-items: stretch;
+      margin-bottom: 30px;
+    }
   }
 
   .file-list {
@@ -106,6 +169,7 @@ export default {
     max-height: 300px;
     overflow-y: scroll;
     box-sizing: border-box;
+    margin-bottom: 10px;
 
     .list {
       list-style: none;
@@ -114,7 +178,7 @@ export default {
     }
   }
 
-  .files-count {
+  .count {
     max-width: 800px;
     width: 100%;
     color: $white;

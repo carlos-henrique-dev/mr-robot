@@ -1,45 +1,45 @@
+<script>
+import Cancel from "~/components/Cancel.vue";
+
+export default {
+  components: { Cancel },
+  props: {
+    isOpen: {
+      type: Boolean,
+      default: false,
+    },
+    title: {
+      type: String,
+      default: "",
+    },
+  },
+  methods: {
+    closeModal() {
+      this.$emit("close");
+    },
+  },
+};
+</script>
+			
 <template>
   <div class="modal-mask" v-show="isOpen">
-      <div class="modal-wrapper">
-        <div class="modal-container">
+    <div class="modal-wrapper">
+      <div class="modal-container">
+        <div class="modal-header">
+          <h3>{{ title }}</h3>
+          <cancel @clicked="closeModal" />
+        </div>
 
-          <div class="modal-header">
-            <slot name="header">
-              default header
-            </slot>
-          </div>
-
-          <div class="modal-body">
-            <slot name="body">
-              default body
-            </slot>
-          </div>
-
-          <div class="modal-footer">
-            <slot name="footer">
-              default modal footer
-              <button class="modal-default-button" @click="$emit('close')">
-                OK
-              </button>
-            </slot>
-          </div>
+        <div class="modal-body">
+          <slot></slot>
         </div>
       </div>
     </div>
+  </div>
 </template>
 
-<script>
-export default {
-	props: {
-		isOpen: {
-			type: Boolean,
-			default: false
-		}
-	}
-}
-</script>
-
 <style lang="scss">
+@import "../assets/style/variables.scss";
 
 .modal-mask {
   position: fixed;
@@ -50,6 +50,11 @@ export default {
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   display: table;
+  box-sizing: border-box;
+	
+	@media (max-width: 600px) {
+		padding: 0 20px;
+	}
 }
 
 .modal-wrapper {
@@ -58,37 +63,31 @@ export default {
 }
 
 .modal-container {
-  width: 300px;
+  max-width: 800px;
   margin: 0px auto;
-  padding: 20px 30px;
-  background-color: #fff;
+  padding: 20px 30px 10px;
+  background-color: $light-background;
   border-radius: 2px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
   font-family: Helvetica, Arial, sans-serif;
+  border-radius: 10px;
+
 }
 
-.modal-header h3 {
-  margin-top: 0;
-  color: #42b983;
+.modal-header {
+  display: flex;
+  flex-direction: row;
+  h3 {
+    margin-top: 0;
+    color: $white;
+    margin-right: auto;
+  }
 }
 
 .modal-body {
   margin: 20px 0;
+  max-height: 90vh;
 }
-
-.modal-default-button {
-  display: block;
-  margin-top: 1rem;
-}
-
-/*
- * The following styles are auto-applied to elements with
- * transition="modal" when their visibility is toggled
- * by Vue.js.
- *
- * You can easily play with the modal transition by editing
- * these styles.
- */
 
 .modal-enter-active,
 .modal-leave-active {
@@ -99,5 +98,4 @@ export default {
 .modal-leave-to {
   opacity: 0;
 }
-
 </style>

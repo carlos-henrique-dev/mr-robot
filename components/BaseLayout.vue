@@ -1,9 +1,9 @@
 <template>
   <main class="app-container">
-	  <nav v-show="showHeader" class="nav-bar">
-		  <robot-logo size="small" />
-		  <nuxt-link to="/" class="home-anchor">Mr Robot</nuxt-link>
-	  </nav>
+    <nav v-show="showHeader" class="nav-bar">
+      <robot-logo size="small" />
+      <nuxt-link to="/" class="home-anchor">Mr Robot</nuxt-link>
+    </nav>
     <slot></slot>
     <footer>
       <span>{{ new Date().getFullYear() }}</span>
@@ -21,15 +21,15 @@
 </template>
 
 <script>
-import RobotLogo from './RobotLogo.vue';
+import RobotLogo from "./RobotLogo.vue";
 export default {
   components: { RobotLogo },
-	props: {
-		showHeader: {
-			type: Boolean,
-			default: false
-		}
-	}
+  props: {
+    showHeader: {
+      type: Boolean,
+      default: false,
+    },
+  },
 };
 </script>
 
@@ -44,20 +44,20 @@ export default {
   flex-direction: column;
 
   .nav-bar {
-	  width: 100%;
-	  display: flex;
-	  flex-direction: row;
-	  justify-content: flex-start;
-	  align-items: center;
-	  padding: 10px 20px;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 10px 20px;
 
-		.home-anchor {
-			color: $white;
-			margin-left: 15px;
-			text-decoration: none;
-			font-weight: bold;
-			font-size: 25px;
-		}
+    .home-anchor {
+      color: $white;
+      margin-left: 15px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 25px;
+    }
   }
 
   footer {
@@ -67,6 +67,7 @@ export default {
     align-items: center;
     padding: 10px 0;
     span {
+      font-size: 12px;
       margin: 0 10px;
       color: $white;
       a {
